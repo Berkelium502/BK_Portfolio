@@ -77,12 +77,17 @@ h1, h2, h3 { font-family: var(--sans); font-weight: 500; margin: 0; line-height:
 .banner { position: relative; overflow: hidden; isolation: isolate; }
 .banner-video {
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2;
-  opacity: 0; transition: opacity 1.2s var(--ease);
+  object-position: 50% 62%;
 }
 .banner.has-video .banner-video { opacity: 1; }
+/* The clip is vertical: it fills phones and narrow windows. Wide screens get the drift photo instead. */
+@media (min-aspect-ratio: 1/1) {
+  .banner-video { display: none; }
+  .banner { background: url("assets/img/banner-poster.jpg") center 60% / cover no-repeat; }
+}
 .banner.has-video::after { /* darkens the video so the text stays readable */
   content: ""; position: absolute; inset: 0; z-index: -1;
-  background: linear-gradient(90deg, rgba(10,10,10,.85) 0%, rgba(10,10,10,.55) 60%, rgba(10,10,10,.35) 100%);
+  background: linear-gradient(90deg, rgba(10,10,10,.9) 0%, rgba(10,10,10,.72) 50%, rgba(10,10,10,.4) 100%);
 }
 
 /* ---------- SECTIONS ---------- */
@@ -163,6 +168,15 @@ h1, h2, h3 { font-family: var(--sans); font-weight: 500; margin: 0; line-height:
 .drawing img { width: 100%; height: auto; }
 .drawing:hover { border-color: var(--accent); }
 .drawing-caption { margin-top: 14px !important; font-size: 14px !important; color: var(--muted) !important; }
+
+/* gallery sizing + captions */
+.gallery[data-count="1"] { grid-template-columns: minmax(0, 480px); }
+.gallery[data-count="2"], .gallery[data-count="4"] { grid-template-columns: repeat(2, 1fr); }
+.gallery .ph .caption {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 28px 12px 10px;
+  font-size: 13px; line-height: 1.35; color: #fff;
+  background: linear-gradient(transparent, rgba(0,0,0,.75));
+}
 
 /* ---------- REVEAL ---------- */
 .reveal { opacity: 0; transform: translateY(16px); transition: opacity .8s var(--ease), transform .8s var(--ease); }

@@ -1,5 +1,16 @@
 // Photos: if an image file hasn't been added yet, show a labeled placeholder box instead.
 // It also tries other common endings (.jpeg, .png, .JPG...) so a photo still shows if it was saved that way.
+// Galleries: missing photos are simply left out, and the grid adapts to how many remain
+const sizeGallery = (g) => {
+  const n = g.querySelectorAll('.ph').length;
+  g.dataset.count = n;
+  if (n === 0) g.closest('section')?.remove();
+};
+document.querySelectorAll('.gallery').forEach(sizeGallery);
+// Captions: add data-caption="..." to a gallery photo
+document.querySelectorAll('.gallery .ph[data-caption]').forEach((ph) => {
+  const c = document.createElement('span'); c.className = 'caption'; c.textContent = ph.dataset.caption; ph.appendChild(c);
+});
 const EXTS = ['jpg', 'jpeg', 'png', 'webp', 'JPG', 'JPEG', 'PNG'];
 document.querySelectorAll('.ph img').forEach((img) => {
   const box = img.closest('.ph');
@@ -8,6 +19,7 @@ document.querySelectorAll('.ph img').forEach((img) => {
   const tryNext = () => {
     i += 1;
     if (i < EXTS.length) img.src = `${base}.${EXTS[i]}`;
+    else if (box.closest('.gallery')) { const g = box.closest('.gallery'); box.remove(); sizeGallery(g); }
     else { img.remove(); box.classList.add('empty'); }
   };
   img.addEventListener('error', tryNext);
@@ -37,9 +49,10 @@ addEventListener('scroll', onScroll, { passive: true }); onScroll();
 const bannerVideo = document.querySelector('.banner-video');
 if (bannerVideo) {
   const banner = bannerVideo.closest('.banner');
-  bannerVideo.addEventListener('loadeddata', () => banner.classList.add('has-video'));
-  bannerVideo.addEventListener('error', () => bannerVideo.remove());
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) bannerVideo.removeAttribute('autoplay');
+  // If the video can't load, the poster photo stays up. Reduced-motion users just see the photo.
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { bannerVideo.removeAttribute('autoplay'); bannerVideo.pause(); }
+  // Don't download the video on wide screens, where it's hidden
+  if (matchMedia('(min-aspect-ratio: 1/1)').matches) { bannerVideo.removeAttribute('autoplay'); bannerVideo.preload = 'none'; bannerVideo.pause(); }
 }
 
 // Email: assembled here instead of written in the page, so spam bots scanning the HTML can't read it
